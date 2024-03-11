@@ -101,6 +101,8 @@ class maze():
         print()
         for x in range(len(solution)):
             print("Step", x+1, end=": ")
+            print("Choices:", len(self.choices[x]), end=" --> ")
+            print(self.choices[x])
             print("Go", self.solution[0][x])
             print()
             for i, row in enumerate(self.walls):
@@ -157,6 +159,13 @@ class maze():
                 continue
         return result
     
+    def a_star(self, current, goal):
+        # Manhattan distance
+        self.manhattan =  abs(current[0] - goal[0]) + abs(current[1] - goal[1])
+        return self.manhattan + self.steps
+        # print(self.manhattan, self.steps)
+        # print(self.a_starval)
+
     def solve(self):
         """Finds a solution to maze, if one exists."""
 
@@ -171,8 +180,17 @@ class maze():
         # Initialize an empty explored set
         self.explored = set()
 
+        # Add choices to the frontier
+        self.choices = []
+
+        # Add steps
+        self.steps = 0
+
         # Keep looping until solution found
         while True:
+
+            # count the number of steps
+            self.steps += 1
 
             # If nothing left in frontier, then no path
             if frontier.empty():
@@ -181,6 +199,9 @@ class maze():
             # Choose a node from the frontier
             node = frontier.remove()
             self.num_explored += 1
+
+            # Using a_star to find the best path
+            self.a_starval = self.a_star(node.state, self.goal)
 
             # If node is the goal, then we have a solution
             if node.state == self.goal:
@@ -195,18 +216,30 @@ class maze():
                 actions.reverse()
                 cells.reverse()
                 self.solution = (actions, cells)
+                # self.turns = len(self.solution)
                 return
 
             # Mark node as explored
             self.explored.add(node.state)
 
+            self.temp = []
+
             # Add neighbors to frontier
             for action, state in self.neighbors(node.state):
+
                 if not frontier.contains_state(state) and state not in self.explored:
 
                     # create a new node named child with the state as correct state after neigbour checking, parent as the current node, and action from the neighbour checking
                     child = Node(state=state, parent=node, action=action)
                     frontier.add(child)
+
+                    # Add choices to the temp
+                    self.temp.append((child.state, child.action))
+
+            # Add temp to the choices
+            self.choices.append(self.temp)
+
+            # print(self.choices)
 
     def output_image(self, filename, show_solution=True, show_explored=False):
         from PIL import Image, ImageDraw
