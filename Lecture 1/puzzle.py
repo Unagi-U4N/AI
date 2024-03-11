@@ -3,7 +3,7 @@ from logic import *
 people = ["Gilderoy", "Pomona", "Minerva", "Horace"]
 houses = ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"]
 
-symbols = []
+symbols = [] # list of all possible worlds (True or False)
 
 knowledge = And()
 
@@ -24,18 +24,20 @@ for person in people:
 for person in people:
     for h1 in houses:
         for h2 in houses:
-            if h1 != h2:
+            if h1 != h2: # h1 and h2 must be different houses when comparing
                 knowledge.add(
                     Implication(Symbol(f"{person}{h1}"), Not(Symbol(f"{person}{h2}")))
+                    # If person1 is in house1, then person1 is not in house2 (and all other houses)
                 )
 
 # Only one person per house.
 for house in houses:
     for p1 in people:
         for p2 in people:
-            if p1 != p2:
+            if p1 != p2: # p1 and p2 must be different people when comparing
                 knowledge.add(
                     Implication(Symbol(f"{p1}{house}"), Not(Symbol(f"{p2}{house}")))
+                    # If p1 is in house1, then p2 (and all other people) are not in house1
                 )
 
 knowledge.add(
