@@ -1,3 +1,5 @@
+from PIL import Image, ImageDraw
+
 class Node():
     def __init__(self, state, parent, action):
         self.state = state
@@ -11,6 +13,21 @@ class StackFrontier():
     
     def __init__(self):
         self.frontier = []
+
+
+    def a_star(self, goal, steps):
+
+        # Initialize the a_starval list
+        self.a_starval = []
+
+        for x in range (len(self.frontier)):
+            # Manhattan distance
+            self.manhattan =  abs(self.frontier[x].state[0] - goal[0]) + abs(self.frontier[x].state[1] - goal[1])
+            self.a_starval.append(self.manhattan + steps)
+        # print(self.manhattan, self.steps)
+        # print(self.a_starval)
+        print(max(self.a_starval))
+        return (max(self.a_starval))   
     
     def add(self, node):
         self.frontier.append(node)
@@ -101,9 +118,9 @@ class maze():
         print()
         for x in range(len(solution)):
             print("Step", x+1, end=": ")
-            print("Choices:", len(self.choices[x]), end=" --> ")
-            print(self.choices[x])
-            print("Go", self.solution[0][x])
+            # print("Choices:", len(self.choices[x]), end=" --> ")
+            # print(self.choices[x])
+            # print("Go", self.solution[0][x])
             print()
             for i, row in enumerate(self.walls):
                 for j, col in enumerate(row):
@@ -160,11 +177,17 @@ class maze():
         return result
     
     def a_star(self, current, goal):
-        # Manhattan distance
-        self.manhattan =  abs(current[0] - goal[0]) + abs(current[1] - goal[1])
-        return self.manhattan + self.steps
+
+        # Initialize the a_starval list
+        self.a_starval = []
+
+        for x in current:
+            # Manhattan distance
+            self.manhattan =  abs(current[x][0] - goal[0]) + abs(current[x][1] - goal[1])
+            self.a_starval.append(x, (self.manhattan + self.steps))
         # print(self.manhattan, self.steps)
         # print(self.a_starval)
+        return (max(self.a_starval[1]), self.a_starval[0])     
 
     def solve(self):
         """Finds a solution to maze, if one exists."""
@@ -172,19 +195,20 @@ class maze():
         # Keep track of number of states explored
         self.num_explored = 0
 
+        # Add steps
+        self.steps = 0
+
         # Initialize frontier to just the starting position
         start = Node(state=self.start, parent=None, action=None)
-        frontier = StackFrontier()
+        frontier = queueFrontier()
         frontier.add(start) # add the start node to the frontier
+        frontier.a_star(self.goal, self.steps)
 
         # Initialize an empty explored set
         self.explored = set()
 
         # Add choices to the frontier
-        self.choices = []
-
-        # Add steps
-        self.steps = 0
+        # self.choices = []
 
         # Keep looping until solution found
         while True:
@@ -197,11 +221,9 @@ class maze():
                 raise Exception("no solution")
 
             # Choose a node from the frontier
+            # self.a_starval, self.starstate = self.a_star(frontier.frontier, self.goal)
             node = frontier.remove()
             self.num_explored += 1
-
-            # Using a_star to find the best path
-            self.a_starval = self.a_star(node.state, self.goal)
 
             # If node is the goal, then we have a solution
             if node.state == self.goal:
@@ -222,7 +244,7 @@ class maze():
             # Mark node as explored
             self.explored.add(node.state)
 
-            self.temp = []
+            # self.temp = []
 
             # Add neighbors to frontier
             for action, state in self.neighbors(node.state):
@@ -234,15 +256,14 @@ class maze():
                     frontier.add(child)
 
                     # Add choices to the temp
-                    self.temp.append((child.state, child.action))
+                    # self.temp.append((self.a_starval ,child.state, child.action))
 
             # Add temp to the choices
-            self.choices.append(self.temp)
+            # self.choices.append(self.temp)
 
             # print(self.choices)
 
     def output_image(self, filename, show_solution=True, show_explored=False):
-        from PIL import Image, ImageDraw
         cell_size = 50
         cell_border = 2
 
@@ -297,9 +318,10 @@ class maze():
                         ([(j * cell_size + cell_border, i * cell_size + cell_border), ((j + 1) * cell_size - cell_border, (i + 1) * cell_size - cell_border)]),
                         fill=fill
                     )
+        img.save(filename)
 
 game = maze("maze1.txt")
 game.solve()
 game.print()
-game.output_image("maze1.png", show_explored=True)
+game.output_image("maze1.png", show_explored=True, show_solution=True)
 
