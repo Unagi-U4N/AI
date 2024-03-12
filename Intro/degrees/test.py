@@ -137,22 +137,8 @@ def shortest_path(source, target):
         explored.add(currID)
 
         # Add neighbors to the frontier
-        for movie_id, person_id in neighbors_for_person(currID, target):
-            if person_id == target:
-                print(f"Steps: {count}")
-                node = Node(state=person_id, parent=node, action=movie_id)
-                actions = []
-                cells = []
-                while node.parent is not None:
-                    actions.append(node.action)
-                    cells.append(node.state)
-                    node = node.parent
-                actions.reverse()
-                cells.reverse()
-                solution = list(zip(actions, cells))
-                return solution
-            
-            elif not frontier.contains_state(person_id) and person_id not in explored:
+        for movie_id, person_id in neighbors_for_person(currID):
+            if not frontier.contains_state(person_id) and person_id not in explored:
                 child = Node(state=person_id, parent=node, action=movie_id)
                 frontier.add(child)
 
@@ -186,7 +172,7 @@ def person_id_for_name(name):
         return person_ids[0]
 
 
-def neighbors_for_person(person_id, goal):
+def neighbors_for_person(person_id):
     """
     Returns (movie_id, person_id) pairs for people
     who starred with a given person.
@@ -195,11 +181,7 @@ def neighbors_for_person(person_id, goal):
     neighbors = set()
     for movie_id in movie_ids:
         for person_id in movies[movie_id]["stars"]:
-            if person_id == goal:
-                neighbors.add((movie_id, person_id))
-                return neighbors
-            else:
-                neighbors.add((movie_id, person_id))
+            neighbors.add((movie_id, person_id))
     return neighbors
 
 
