@@ -53,9 +53,11 @@ def load_data(directory):
 
 
 def main():
-    if len(sys.argv) > 2:
-        sys.exit("Usage: python degrees.py [directory]")
-    directory = sys.argv[1] if len(sys.argv) == 2 else "large"
+    # if len(sys.argv) > 2:
+    #     sys.exit("Usage: python degrees.py [directory]")
+    # directory = sys.argv[1] if len(sys.argv) == 2 else "large"
+
+    directory = r"c:\Users\ICiva\coding project\AI\Intro\degrees\small"
 
     # Load data from files into memory
     print("Loading data...")
@@ -82,22 +84,6 @@ def main():
             person2 = people[path[i + 1][1]]["name"]
             movie = movies[path[i + 1][0]]["title"]
             print(f"{i + 1}: {person1} and {person2} starred in {movie}")
-
-def neighbors_for_person(person_id):
-    """
-    Returns (movie_id, person_id) pairs for people
-    who starred with a given person.
-    """
-
-    movie_id = people[person_id]["movies"]
-    neighbors = set()
-
-    for x in movie_id:
-        if x in movies:
-            for y in movies[x]["stars"]:
-                neighbors.add((x, y)) 
-
-    return neighbors
 
 
 def shortest_path(source, target):
@@ -128,6 +114,7 @@ def shortest_path(source, target):
         
         # Count the steps
         steps += 1
+        print(f"Step: {steps}")
 
         # Choose a node from the frontier
         node = frontier.remove()
@@ -143,7 +130,7 @@ def shortest_path(source, target):
                 node = node.parent
             actions.reverse()
             cells.reverse()
-            solution = (actions, cells)
+            solution = list[(actions, cells)]
             return solution
         
         # Mark node as explored
@@ -192,9 +179,12 @@ def neighbors_for_person(person_id):
     """
     movie_ids = people[person_id]["movies"]
     neighbors = set()
+    count = 1
     for movie_id in movie_ids:
         for person_id in movies[movie_id]["stars"]:
+            count += 1
             neighbors.add((movie_id, person_id))
+        print(f"Stars found: {count}")
     return neighbors
 
 

@@ -114,6 +114,7 @@ class maze():
         
     def print(self):
         # if the self.solution is not None, then the solution is the second element of the tuple "only the coords", if the self.solution is None, then the solution is None
+        print(solution)
         solution = self.solution[1] if self.solution is not None else None # self.solution[1] = (i,j)
         print()
         for x in range(len(solution)):
