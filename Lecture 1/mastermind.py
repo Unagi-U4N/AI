@@ -4,6 +4,7 @@ colors = ["red", "blue", "green", "yellow"]
 symbols = []
 for i in range(4):
     for color in colors:
+        # Create a new possible answer
         symbols.append(Symbol(f"{color}{i}"))
 
 knowledge = And()
