@@ -57,11 +57,11 @@ def actions(board):
     """
 
     # Iterate through the board and find all the empty cells
-    actions = []
+    actions = set()
     for i in range(3):
         for j in range(3):
             if board[i][j] == EMPTY:
-                actions.append((i, j))
+                actions.add((i, j))
 
     return actions
 
