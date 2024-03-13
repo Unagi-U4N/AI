@@ -79,9 +79,11 @@ def result(board, action):
         # using deepcopy to make a copy of the board (DO NOT USE shallow copy due to 2 dimensional list)
         newboard = copy.deepcopy(board)
         newboard[i][j] = player(board)
-        return newboard
+        # return newboard
     except Exception as e:
-        print(e)
+        raise e
+
+    return newboard
 
     raise NotImplementedError
 
@@ -92,11 +94,10 @@ def winner(board):
     """
 
     # Check rows of 3
-    for rows in board:
-        if rows[0] == rows[1] == rows[2]:
-            return rows[0]
+    for rows in range(3):
+        if board[rows][0] == board[rows][1] == board[rows][2]:
+            return board[rows][0]
         
-    
     # Check columns of 3
     for cols in range(3):
         if board[0][cols] == board[1][cols] == board[2][cols]:
