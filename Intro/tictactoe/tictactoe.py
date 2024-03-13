@@ -152,24 +152,44 @@ def minimax(board):
     """
 
     # Define the max and min functions, both functions will call each other recursively
-    def max_value(board):
+    # Alpha = max value, Beta = min value
+    # https://www.youtube.com/watch?v=N98F8HYEDCk
+
+    def max_value(board, alpha, beta):
         if terminal(board):
             return utility(board)
         v = -math.inf
         for action in actions(board):
             global operations
             operations += 1
-            v = max(v, min_value(result(board, action)))
+
+            # Call the min function, and find the maximum value as v
+            v = max(v, min_value(result(board, action), alpha, beta))
+
+            # Compare the value of v with alpha(maximum value from previous branch), and update alpha if v is greater
+            alpha = max(alpha, v)
+
+            # If alpha is greater than or equal to beta(minimum value from previous branch), break the loop, stop searching the down the branch
+            if alpha >= beta:
+                break
         return v
 
-    def min_value(board):
+    def min_value(board, alpha, beta):
         if terminal(board):
             return utility(board)
         v = math.inf
         for action in actions(board):
             global operations
             operations += 1
-            v = min(v, max_value(result(board, action)))
+            # Call the max function, and find the minimum value as v
+            v = min(v, max_value(result(board, action), alpha, beta))
+
+            # Compare the value of v with beta(minimum value from previous branch), and update beta if v is smaller
+            beta = min(beta, v)
+
+            # If alpha is greater than or equal to beta(minimum value from previous branch), break the loop, stop searching the down the branch
+            if alpha >= beta:
+                break
         return v
 
     if terminal(board):
@@ -179,13 +199,15 @@ def minimax(board):
 
 
         choice = []
+        alpha = -math.inf
+        beta = math.inf
 
         # If the board is not in initial state, use the minimax algorithm to find the best move
         if player(board) == X:
             val = []
             action = []
             for act in actions(board):
-                val.append(max_value(result(board, act)))
+                val.append(max_value(result(board, act), alpha, beta))
                 action.append(act)
             choice.append(action[val.index(max(val))])
             
@@ -195,12 +217,12 @@ def minimax(board):
             val = []
             action = []
             for act in actions(board):
-                val.append(min_value(result(board, act)))
+                val.append(min_value(result(board, act), alpha, beta))
                 action.append(act)
             choice.append(action[val.index(min(val))])
         global operations
         print("Total operations: ", operations)
         operations = 0
         return choice[0]    
-
+    
     raise NotImplementedError
