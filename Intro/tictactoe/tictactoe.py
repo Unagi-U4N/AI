@@ -76,10 +76,16 @@ def result(board, action):
     try:
         i, j = action
 
+        if i < 0 or i >= len(board) or j < 0 or j >= len(board[0]):
+            raise IndexError("Invalid move: Index out of range")
+
+        if board[i][j] != EMPTY:
+            raise ValueError("Invalid move: Cell already taken")
+
         # using deepcopy to make a copy of the board (DO NOT USE shallow copy due to 2 dimensional list)
         newboard = copy.deepcopy(board)
         newboard[i][j] = player(board)
-        # return newboard
+
     except Exception as e:
         raise e
 
@@ -94,24 +100,23 @@ def winner(board):
     """
 
     # Check rows of 3
-    for rows in range(3):
-        if board[rows][0] == board[rows][1] == board[rows][2]:
-            return board[rows][0]
+    for row in board:
+        if row[0] == row[1] == row[2] and row[0] is not None:
+            return row[0]
         
     # Check columns of 3
-    for cols in range(3):
-        if board[0][cols] == board[1][cols] == board[2][cols]:
-            return board[0][cols]
+    for col in range(3):
+        if board[0][col] == board[1][col] == board[2][col] and board[0][col] is not None:
+            return board[0][col]
             
     # Check diagonals
-    if board[0][0] == board[1][1] == board[2][2]:
+    if board[0][0] == board[1][1] == board[2][2] and board[0][0] is not None:
         return board[0][0]
-    elif board[0][2] == board[1][1] == board[2][0]:
+    elif board[0][2] == board[1][1] == board[2][0] and board[0][2] is not None:
         return board[0][2]
     
     # If no winner
-    else:
-        return None
+    return None
 
                 
     raise NotImplementedError
