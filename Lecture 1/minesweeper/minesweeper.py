@@ -1,7 +1,6 @@
 import itertools
 import random
 
-
 class Minesweeper():
     """
     Minesweeper game representation
@@ -213,19 +212,35 @@ class MinesweeperAI():
         self.mark_safe(cell)
 
         # Add a new sentence to the AI's knowledge base
-        if cell not in self.safes and cell not in self.mines:
-            new_sentence = Sentence(cell, count)
-            self.knowledge.append(new_sentence)
+        new_sentence_cells = set()
+        for i in range(cell[0] - 1, cell[0] + 2):
+            for j in range(cell[1] - 1, cell[1] + 2):
+                if (i, j) == cell:
+                    continue
+
+                # Keep it within the border
+                if 0 <= i < self.height and 0 <= j < self.width:
+                    if (i, j) in self.mines:
+                        count -= 1
+                    elif (i, j) not in self.safes:
+                        new_sentence_cells.add((i, j))
+
+        new_sentence = Sentence(new_sentence_cells, count)
+        self.knowledge.append(new_sentence)
 
         # Mark any additional cells as safe or as mines
-        for sentence in self.knowledge: # For each sentence in the knowledge base
+        for sentence in self.knowledge.copy(): # For each sentence in the knowledge base
 
             # For all the cells that are known to be safe
-            for cell in sentence.known_safes():
+            safe = set(sentence.known_safes()) # Make a copy
+            for cell in safe:
+                print(f"Marking {cell} as safe")
                 self.mark_safe(cell)
             
             # For all the cells that are known to be mines
-            for cell in sentence.known_mines():
+            mines = set(sentence.known_mines()) # Make a copy
+            for cell in mines:
+                print(f"Marking {cell} as mine")
                 self.mark_mine(cell)
 
         # Add any new sentences to the AI's knowledge base
@@ -238,6 +253,18 @@ class MinesweeperAI():
                         new_sentence = Sentence(other_sentence.cells - sentence.cells, other_sentence.count - sentence.count)
                         if new_sentence not in self.knowledge:
                             self.knowledge.append(new_sentence)
+        
+        # Infer mine and safe spots when given new information at the end of the function
+        for sentence in self.knowledge.copy():
+            mines = set(sentence.known_mines())
+            for cell in mines:
+                print(f"Marking {cell} as mine")
+                self.mark_mine(cell)
+            safe = set(sentence.known_safes())
+            for cell in safe:
+                print(f"Marking {cell} as safe")
+                self.mark_safe(cell)
+
         
         # raise NotImplementedError
 
