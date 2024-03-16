@@ -119,7 +119,8 @@ def sample_pagerank(corpus, damping_factor, n):
             list of values (probabilities).
             """
 
-            page = random.choices(list(probability_distribution.keys()), list(probability_distribution.values()), k=1)[0]
+            page = random.choices(list(probability_distribution.keys()),
+                                  list(probability_distribution.values()), k=1)[0]
 
         # Update the number of times the page has been opened
         times[page] += 1
@@ -163,6 +164,10 @@ def iterate_pagerank(corpus, damping_factor):
         
         for page in corpus:
 
+            # If the page has no links at all, consider all the pages in the corpus
+            if len(corpus[page]) == 0:
+                corpus[page] = set(corpus.keys())
+
             # Get a set of all the pages i, that link to the current page
             linked = set()
             for i in corpus:
@@ -182,8 +187,10 @@ def iterate_pagerank(corpus, damping_factor):
                     sum += pagerank[i] / len(corpus[i])
                 new_pagerank[page] = (1 - damping_factor) / N + damping_factor * sum 
 
-            # If the difference between the new and old pagerank is less than the limit, break
-            if abs(new_pagerank[page] - pagerank[page]) < limit:
+        for page in corpus:
+            
+            # If the difference between all the values in the new and old pagerank is less than the limit, break
+            if all(abs(new_pagerank[page] - pagerank[page]) < limit for page in corpus):
                 return pagerank
             
             else:
