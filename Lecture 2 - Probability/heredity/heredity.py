@@ -141,7 +141,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
     """
 
     probabilities = {
-        person:{}
+        person: {}
         for person in people
     }
 
@@ -196,45 +196,45 @@ def joint_probability(people, one_gene, two_genes, have_trait):
             if mother_gene_num == 0 and father_gene_num == 0:
                 return (1 - PROBS["mutation"]) * (1 - PROBS["mutation"])
             elif (mother_gene_num == 1 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 1):
-                return(0.5 * (1 - PROBS["mutation"]))
+                return (0.5 * (1 - PROBS["mutation"]))
             elif (mother_gene_num == 2 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 2):
-                return(PROBS["mutation"] * (1 - PROBS["mutation"]))
+                return (PROBS["mutation"] * (1 - PROBS["mutation"]))
             elif (mother_gene_num == 2 and father_gene_num == 1) or (mother_gene_num == 1 and father_gene_num == 2):
-                return(0.5 * PROBS["mutation"])
+                return (0.5 * PROBS["mutation"])
             elif (mother_gene_num == 1 and father_gene_num == 1):
-                return(0.5 * 0.5)    
+                return (0.5 * 0.5)    
             else:
-                return(PROBS["mutation"] * PROBS["mutation"])
+                return (PROBS["mutation"] * PROBS["mutation"])
             
         # If the person has one gene
         elif gene_num == 1:
             if mother_gene_num == 0 and father_gene_num == 0:
                 return (1 - PROBS["mutation"]) * PROBS["mutation"] + PROBS["mutation"] * (1 - PROBS["mutation"])
             elif (mother_gene_num == 1 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 1):
-                return(0.5 * (1 - PROBS["mutation"])) + (0.5 * PROBS["mutation"])
+                return (0.5 * (1 - PROBS["mutation"])) + (0.5 * PROBS["mutation"])
             elif (mother_gene_num == 2 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 2):
-                return((1 - PROBS["mutation"]) * (1 - PROBS["mutation"]) + PROBS["mutation"] * PROBS["mutation"])
+                return ((1 - PROBS["mutation"]) * (1 - PROBS["mutation"]) + PROBS["mutation"] * PROBS["mutation"])
             elif (mother_gene_num == 2 and father_gene_num == 1) or (mother_gene_num == 1 and father_gene_num == 2):
-                return(0.5 * PROBS["mutation"] + 0.5 * (1 - PROBS["mutation"]))
+                return (0.5 * PROBS["mutation"] + 0.5 * (1 - PROBS["mutation"]))
             elif (mother_gene_num == 1 and father_gene_num == 1):
-                return(0.5 * 0.5 + 0.5 * 0.5)
+                return (0.5 * 0.5 + 0.5 * 0.5)
             else:
-                return(PROBS["mutation"] * (1 - PROBS["mutation"]) + (1 - PROBS["mutation"]) * PROBS["mutation"])
+                return (PROBS["mutation"] * (1 - PROBS["mutation"]) + (1 - PROBS["mutation"]) * PROBS["mutation"])
 
         # If the person has two genes
         else:
             if mother_gene_num == 0 and father_gene_num == 0:
                 return PROBS["mutation"] * PROBS["mutation"]
             elif (mother_gene_num == 1 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 1):
-                return(0.5 * PROBS["mutation"])
+                return (0.5 * PROBS["mutation"])
             elif (mother_gene_num == 2 and father_gene_num == 0) or (mother_gene_num == 0 and father_gene_num == 2):
-                return(PROBS["mutation"] * (1 - PROBS["mutation"]))
+                return (PROBS["mutation"] * (1 - PROBS["mutation"]))
             elif (mother_gene_num == 2 and father_gene_num == 1) or (mother_gene_num == 1 and father_gene_num == 2):
-                return(0.5 * (1 - PROBS["mutation"]))
+                return (0.5 * (1 - PROBS["mutation"]))
             elif (mother_gene_num == 1 and father_gene_num == 1):
-                return(0.5 * 0.5)
+                return (0.5 * 0.5)
             else:
-                return(1 - PROBS["mutation"]) * (1 - PROBS["mutation"])
+                return (1 - PROBS["mutation"]) * (1 - PROBS["mutation"])
             
     def get_gene_num(person):
         if person in one_gene:
