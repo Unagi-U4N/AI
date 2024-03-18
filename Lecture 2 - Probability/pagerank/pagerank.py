@@ -68,7 +68,7 @@ def transition_model(corpus, page, damping_factor):
     # If the page has no outgoing links, return a probability distribution that chooses randomly among all pages with equal probability.
     if len(corpus[page]) == 0:
         for link in corpus:
-            probability_distribution[link] = 1/ len(corpus)
+            probability_distribution[link] = 1 / len(corpus)
         return probability_distribution
     
     # If the page has outgoing links, return a probability distribution that chooses randomly among all pages linked to by the given page with probability damping_factor, and with probability 1 - damping_factor, chooses randomly among all pages in the corpus.
@@ -159,14 +159,15 @@ def iterate_pagerank(corpus, damping_factor):
 
     new_pagerank = pagerank.copy()
 
+    # If the page has no links at all, consider all the pages in the corpus
+    for page in corpus:
+        if len(corpus[page]) == 0:
+            corpus[page] = set(corpus.keys())
+
     # Iterate through all the pages in corpus
     while True:
         
         for page in corpus:
-
-            # If the page has no links at all, consider all the pages in the corpus
-            if len(corpus[page]) == 0:
-                corpus[page] = set(corpus.keys())
 
             # Get a set of all the pages i, that link to the current page
             linked = set()
