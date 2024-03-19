@@ -2,7 +2,7 @@ import itertools
 import termcolor
 
 """
-Advanced backtracking search with inference.
+Advanced backtracking search with inference and degree heuristic (Select the variable that has the highest degree).
 """
 
 VARIABLES = ["A", "B", "C", "D", "E", "F", "G"]
@@ -52,10 +52,28 @@ def backtrack(assignment, log=False):
     return None
 
 
+def select_unassigned_variable(assignment):
+    """Chooses a variable not yet assigned, in order."""
+    degree = {}
+    for variable in VARIABLES:
+        if variable not in assignment:
+            degree[variable] = 0
+            for (x, y) in CONSTRAINTS:
+
+                # Only consider arcs where both are assigned, and not already in assignment
+                if x == variable and y not in assignment:
+                    degree[variable] += 1
+                elif y == variable and x not in assignment:
+                    degree[variable] += 1
+        
+    # Select the variable with the highest degree
+    print("Degree: ", degree)
+    return max(degree, key=degree.get)
+
+
 def INFERENCE(assignment, var, log=False):
     """Runs forward checking to find an inference."""
     
-    # Initialize known, triangle and domain
     known = []
     triangle = [var]
     termcolor.cprint("Variable to be infered: " + var, "yellow")
@@ -63,7 +81,7 @@ def INFERENCE(assignment, var, log=False):
     Domain = ["Monday", "Tuesday", "Wednesday"]
     for (x, y) in CONSTRAINTS:
 
-        # Get the other variables that are connected to the current one
+        # Get the triangle of arcs
         if x == var:
             triangle.append(y)
         elif y == var:
@@ -74,8 +92,6 @@ def INFERENCE(assignment, var, log=False):
     # Check if any triangle set is complete by iterating through all sets of 3 
     for subset in powerset(triangle):
         if len(subset) == 3:
-
-            # If the subset is complete with values for each variable, add the variable into known and remove them from the triangle
             if subset[0] in assignment and subset[1] in assignment and subset[2] in assignment:
                 for x in subset:
                     known.append(x)
@@ -138,14 +154,6 @@ def powerset(s):
     """
     s = list(s)
     return list(itertools.combinations(s, 3))
-
-
-def select_unassigned_variable(assignment):
-    """Chooses a variable not yet assigned, in order."""
-    for variable in VARIABLES:
-        if variable not in assignment:
-            return variable
-    return None
 
 
 def consistent(assignment):
