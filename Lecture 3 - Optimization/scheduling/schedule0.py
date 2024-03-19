@@ -1,5 +1,5 @@
 """
-Naive backtracking search without any heuristics or inference.
+Advanced backtracking search with inference.
 """
 
 VARIABLES = ["A", "B", "C", "D", "E", "F", "G"]
@@ -16,14 +16,22 @@ CONSTRAINTS = [
     ("E", "G"),
     ("F", "G")
 ]
+count = 0
 
-
-def backtrack(assignment):
+def backtrack(assignment, log=False):
     """Runs backtracking search to find an assignment."""
+
+    global count
 
     # Check if assignment is complete
     if len(assignment) == len(VARIABLES):
+        print("\n+-------------------------------+\n      Assignment complete\n+-------------------------------+")
+        print("Number of backtracks: " + str(count))
         return assignment
+
+    if log:
+        count += 1
+        print("Number of backtracks:" , count)
 
     # Try a new variable
     var = select_unassigned_variable(assignment)
@@ -31,7 +39,7 @@ def backtrack(assignment):
         new_assignment = assignment.copy()
         new_assignment[var] = value
         if consistent(new_assignment):
-            result = backtrack(new_assignment)
+            result = backtrack(new_assignment, True)
             if result is not None:
                 return result
     return None
@@ -61,5 +69,5 @@ def consistent(assignment):
     return True
 
 
-solution = backtrack(dict())
+solution = backtrack(dict(), True)
 print(solution)
