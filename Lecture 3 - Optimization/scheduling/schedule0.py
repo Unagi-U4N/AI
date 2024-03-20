@@ -4,6 +4,7 @@ Advanced backtracking search with inference.
 
 VARIABLES = ["A", "B", "C", "D", "E", "F", "G"]
 CONSTRAINTS = [
+    ("A", "G"),
     ("A", "B"),
     ("A", "C"),
     ("B", "C"),
