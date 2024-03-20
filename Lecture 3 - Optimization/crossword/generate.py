@@ -141,7 +141,8 @@ class CrosswordCreator():
                 intersection = self.crossword.overlaps[y, x]
         
         if log:
-            print("Intersection:", intersection)
+            if intersection is not None:
+                print("\nInspecting intersection:", intersection, "between", x, "and", y)
 
         self.new_domains = copy.deepcopy(self.domains)
         # Loop over all the overlaps, for all the words in x and y
@@ -155,19 +156,15 @@ class CrosswordCreator():
             j = intersection[1]
 
             for wordsx in self.domains[x]:
-                for wordsy in self.domains[y]:
-
-                    # If words in x and words in y, continue
-                    if wordsx == wordsy:
-                        break
-                        
-                    # If the word has intersection at (i, j), check all the words in x and y, remove all words in x if wordsx[i] != wordsy[j]
-                    if wordsx[i] != wordsy[j]:
-                        print(wordsx[i], wordsy[j])
-                        self.new_domains[x].remove(wordsx)
-                        print("Removed:", wordsx, "| from", x, "| because of", wordsy, "| from", y)
-                        revision = True
-                        break
+                    
+                # For words in x, if any words in y satisfy the condition, continue
+                if any(wordsx[i] == wordsy[j] for wordsy in self.domains[y]):
+                    continue
+                else:
+                    self.new_domains[x].remove(wordsx)
+                    revision = True
+                    print("Removed:", wordsx, "from", x, "because (", wordsx[i], ") does not match any words in", self.domains[y])
+                    continue
 
             self.domains = self.new_domains
             print(self.domains)
