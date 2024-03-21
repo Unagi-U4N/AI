@@ -183,10 +183,12 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+        print("Going through ac3 algorithm...")
 
         # If arcs is None, begin with initial list of all arcs in the problem
         if arcs is None:
-            arcs = list()
+            arcs = []
+            print("Nothing in arcs, creating new arcs\n\n+----------------------------------+\n")
             for x in self.crossword.variables:
                 for y in self.crossword.variables:
 
@@ -195,19 +197,28 @@ class CrosswordCreator():
                         arcs.append((x, y))
 
         # Loop over all the arcs
-        queue = arcs
-        while queue is not None:
-            x, y = queue.pop(0)
+        # queue = arcs
+        print("Arcs in queue:", len(arcs))
+        index = 0
 
+        while len(arcs) != 0:
+            index += 1
+            x, y = arcs.pop(0)
+            print("Arcs pair" , index , "-->" , "Arcx" , x , "Arcy" , y)
             # If revise is True, append the new arcs to the queue
             if self.revise(x, y, log=True):
                 if len(self.domains[x]) == 0:
                     return False
-                for z in self.crossword.variables:
-
-                    # If z is not x or y
-                    if z != x and z != y:
-                        queue.append((z, x))
+                
+                # Get the neighbor arcs of var z
+                count = 0
+                for z in self.crossword.neighbors(x):    
+                    count = 0
+                    arcs.append((z, x))
+                    count += 1
+                    
+                if count != 0:
+                    print("Revision occured, adding" , count , "to the queue")
         
         return True
     
@@ -351,8 +362,10 @@ class CrosswordCreator():
 
         # For the selected variable, order the domain values
         for value in self.domains[var]:
+            print("Testing value:" , value)
             new_assignment = copy.deepcopy(assignment)
             new_assignment[var] = value
+            print("New assignment:", new_assignment)
 
             # If the assignment is consistent, continue with the assignment
             if self.consistent(new_assignment):

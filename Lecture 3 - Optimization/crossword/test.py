@@ -1,4 +1,4 @@
-x = "ABC"
-y = "ABC"
-
-print(x[1] == y[1])
+x = []
+if not x:
+    x.append(1)
+    print(x)
