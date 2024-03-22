@@ -92,6 +92,7 @@ class CrosswordCreator():
         """
         self.enforce_node_consistency()
         self.ac3()
+        print("\n\nProceeding with backtracking...")
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -129,6 +130,8 @@ class CrosswordCreator():
         """
         
         revision = False
+        xindex = self.getvarname(x, self.arcname)
+        yindex = self.getvarname(y, self.arcname)
 
         # Check if there is a intersection between both variables (Only one intersection for each set of variables)
         intersection = None
@@ -141,7 +144,8 @@ class CrosswordCreator():
         
         if log:
             if intersection is not None:
-                print("\nInspecting intersection:", intersection, "between", x, "and", y)
+                print("\n+-------------------------------------------------------+")
+                print("\nIntersection", intersection, "found between", xindex, "and", yindex)
 
         self.new_domains = copy.deepcopy(self.domains)
         # Loop over all the overlaps, for all the words in x and y
@@ -158,21 +162,35 @@ class CrosswordCreator():
                     
                 # For words in x, if any words in y satisfy the condition, continue
                 if any(wordsx[i] == wordsy[j] for wordsy in self.domains[y]):
+                    print("No revision needed")
                     continue
                 else:
                     self.new_domains[x].remove(wordsx)
                     revision = True
-                    print("Removed:", wordsx, "from", x, "because (", wordsx[i], ") does not match any words in", self.domains[y])
+                    print("Removed:", wordsx, "from", xindex, "because (", wordsx[i], ") does not match any words in", self.domains[y])
                     continue
 
             self.domains = self.new_domains
-            print(self.domains)
-
+            if revision:
+                print("\nRevision occured:")
+                for var in self.domains:
+                    print(self.getvarname(var, self.arcname), self.domains[var])
+                
         return revision
     
         raise NotImplementedError
 
-
+    
+    def getvarname(self, var, arcname):
+        """
+        Get the name of the variable from the arcname list
+        """
+        for arc in arcname:
+            if arc[1] == var:
+                return arc[0]
+        return None
+    
+        
     def ac3(self, arcs=None):
         """
         Update `self.domains` such that each variable is arc consistent.
@@ -183,12 +201,21 @@ class CrosswordCreator():
         return False if one or more domains end up empty.
         """
         print("Going through ac3 algorithm...")
+        index = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
         # If arcs is None, begin with initial list of all arcs in the problem
         if arcs is None:
+
+            # Keep track of all the arcs and its index
             arcs = []
-            print("Nothing in arcs, creating new arcs\n\n+----------------------------------+\n")
+            self.arcname = []
+            count = 0
+
+            print("Nothing in arcs, creating new arcs\n\n+----------------------------------+\n\nVariables to be considered:")
             for x in self.crossword.variables:
+                print(index[count], x)
+                self.arcname.append([index[count], x])
+                count += 1
                 for y in self.crossword.variables:
 
                     # If x and y are not the same
@@ -197,13 +224,20 @@ class CrosswordCreator():
 
         # Loop over all the arcs
         # queue = arcs
+        print("\n+----------------------------------+\n")
         print("Arcs in queue:", len(arcs))
         index = 0
 
         while len(arcs) != 0:
             index += 1
             x, y = arcs.pop(0)
-            print("Arcs pair" , index , "-->" , "Arcx" , x , "Arcy" , y)
+
+            # # Get the index of x and y in the arcname list
+            # xindex = self.getvarname(x, self.arcname)
+            # yindex = self.getvarname(y, self.arcname)
+            
+            # print("Arcs pair" , index , "-->" , "Arc" + xindex , "Arc" + yindex)
+
             # If revise is True, append the new arcs to the queue
             if self.revise(x, y, log=True):
                 if len(self.domains[x]) == 0:
@@ -217,7 +251,7 @@ class CrosswordCreator():
                     count += 1
                     
                 if count != 0:
-                    print("Revision occured, adding" , count , "to the queue")
+                    print("\nAdding" , count , "to the queue")
         
         return True
     
@@ -232,7 +266,6 @@ class CrosswordCreator():
 
         # Check if all the variables are assigned
         print("\nChecking if assignment is complete...")
-        print(assignment)
 
         # If any value in the assignment is None, or the length of the assignment is not equal to the length of the variables, return False
         if any(val is None for val in assignment.values()) or len(assignment) != len(self.crossword.variables):
@@ -363,10 +396,11 @@ class CrosswordCreator():
         degree = []
 
         # For all the variables not in assignment, append remaining values in domain and the degree
-        print("Variables not in assignment:")
+        print("\nVariables not in assignment:")
         for var in self.crossword.variables:
             if var not in assignment:
-                print(var)
+                varname = self.getvarname(var, self.arcname)
+                print(varname, var)
                 num_of_words = len(self.domains[var])
                 remain.append([var, num_of_words])
                 degree.append([var, len(self.crossword.neighbors(var))])
@@ -376,19 +410,20 @@ class CrosswordCreator():
         highest = max(degree, key=lambda words: words[1])[1]
         min_remain = [[k, v] for k, v in remain if v==lowest]
         max_degree = [[k, v] for k, v in degree if v==highest]
-        print("Minimum of remains:", min_remain)
-        print("Maximum of degrees:", max_degree)
+        print("\n")
+        # print("Minimum of remains:", min_remain)
+        # print("Maximum of degrees:", max_degree)
 
         # If there is more than 1 minimum value, check for the maximum degree, else return the first value(only value)
         if len(min_remain) > 1:
 
             # If there is more than 1 maximum degree, return a random one(first value in maximum degree), else return the first value(only value)
             if len(max_degree) > 1:
-                print("Returning choice:", max_degree[0][0])
+                print("Returning choice:", self.getvarname(max_degree[0][0], self.arcname))
                 return max_degree[0][0]
-            print("Returning choice:", max_degree[0][0])
+            print("Returning choice:", self.getvarname(max_degree[0][0], self.arcname))
             return max_degree[0][0]
-        print("Returning choice:", min_remain[0][0])
+        print("Returning choice:", self.getvarname(max_degree[0][0], self.arcname))
         return min_remain[0][0]
     
         raise NotImplementedError
@@ -407,7 +442,9 @@ class CrosswordCreator():
 
         # If the assignment is complete, return the assignment
         if self.assignment_complete(assignment):
-            print("Complete assignment: ", assignment)
+            print("Complete assignment: ")
+            for var in assignment:
+                print(var, "-->", assignment[var])
             return assignment
         
         # Select an unassigned variable
