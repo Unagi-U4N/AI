@@ -267,10 +267,11 @@ class CrosswordCreator():
                 if len(assignment) > 1:
                     for othervar in assignment:
                         if othervar != var:
-
+                            word0 = assignment[var]
+                            word1 = assignment[othervar]
                             # Check if the words are equal
-                            if assignment[var] == assignment[othervar]:
-                                print("Invalid case --> Words", assignment[var], "are repeated")
+                            if word0 == word1:
+                                print("Invalid case --> Words", word0, "are repeated")
                                 print("Assignment is not consistent")
                                 return False
                             
@@ -281,8 +282,8 @@ class CrosswordCreator():
                                     i = intersection[0]
                                     j = intersection[1]
 
-                                    if assignment[var][i] != assignment[othervar][j]:
-                                        print("Invalid case --> Words", assignment[var], "and", assignment[othervar], "do not match at intersection", i, j)
+                                    if word0[i] != word1[j]:
+                                        print("Invalid case --> Words", word0, "and", word1, "do not match at intersection", i, j)
                                         print("Assignment is not consistent")
                                         return False
                                     
@@ -292,18 +293,18 @@ class CrosswordCreator():
                                     i = intersection[0]
                                     j = intersection[1]
 
-                                    if assignment[var][i] != assignment[othervar][j]:
-                                        print("Invalid case --> Words", assignment[var], "and", assignment[othervar], "do not match at intersection", i, j)
+                                    if word0[i] != word1[j]:
+                                        print("Invalid case --> Words", word0, "and", word1, "do not match at intersection", i, j)
                                         print("Assignment is not consistent")
                                         return False
                 
-                print("Assignment is consistent")
-                return True
-            
-            print("Invalid vase --> Length of", assignment[var], "is not equal to", length)
+                continue
 
-        print("Assignment is not consistent")
-        return False
+            print("Invalid vase --> Length of", assignment[var], "is not equal to", length)
+            return False
+
+        print("Assignment is consistent")
+        return True
         
         raise NotImplementedError
 
@@ -315,37 +316,41 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
 
-        degree = []
+        degree = {
+            word: 0
+            for word in self.domains[var]
+        }
 
         # Get a list of overlapping variables
         self.overlaps = self.crossword.neighbors(var)
 
         # Get all the pairs of variable that overlaps
-        for (x, y) in self.overlaps:
+        for y in self.overlaps:
 
-            # If overlap pairs exits, and they are in the main overlap group, reorder the pairs
-            if [x, y] or [y, x] in self.crossword.overlaps:
-                if [y, x] in self.crossword.overlaps:
-                    x, y = y, x
-                
-                # For all the overlap (i, j) in the pairs
-                for overlaps in self.crossword.overlaps[x, y]:
-                    overlaps = list(overlaps)
-                    i = overlaps[0]
-                    j = overlaps[1]
+            # If overlap pairs exits
+            if (var, y) in self.crossword.overlaps:
+                if self.crossword.overlaps[var, y] is not None:
+                    intersection = self.crossword.overlaps[var, y]
+            elif (y, var) in self.crossword.overlaps:
+                if self.crossword.overlaps[y, var] is not None:
+                    intersection = self.crossword.overlaps[y, var]
 
-                    for wordsx in assignment[x]:
-                        n = 0
-                        
-                        # Check how many times a character in var y at index "j" is not equal to a character in var x at index "i" 
-                        for wordsy in assignment[y]:
-                            if wordsy[j] != wordsx[i]:
-                                n += 1
-                    
-                        degree.append((wordsx, n))
+            # Get the values of i, j
+            i = intersection[0]
+            j = intersection[1]
 
-        sorted(degree, key=lambda word: word[1])
-        return degree           
+            # Get the number of words that can be ruled out
+            for word in self.domains[var]:
+                for word1 in self.domains[y]:
+                    if word == word1 or (word in assignment.values() or word1 in assignment.values()):
+                        continue
+                    if word[i] != word1[j]:
+                        degree[word] += 1
+
+
+        degreeofval = [[word, degree[word]] for word in self.domains[var]]
+        sorted(degreeofval, key=lambda word: word[1])
+        return [word[0] for word in degreeofval]       
                         
         raise NotImplementedError
     
@@ -414,7 +419,7 @@ class CrosswordCreator():
         var = self.select_unassigned_variable(assignment)
 
         # For the selected variable, order the domain values
-        for value in self.domains[var]:
+        for value in self.order_domain_values(var, assignment):
             print("Testing value:" , value)
             new_assignment = copy.deepcopy(assignment)
             new_assignment[var] = value
