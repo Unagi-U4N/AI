@@ -61,12 +61,13 @@ def load_data(filename):
     """
 
     # Load data from CSV file
-    with open:
-        reader = csv.reader(filename)
+    with open(filename) as f:
+        reader = csv.reader(f)
         next(reader)
+        data = []
+        # evidence = []
+        # labels = []
         for row in reader:
-            evidence = []
-            labels = []
 
             # Values
             Administrative = int(row[0])
@@ -89,16 +90,21 @@ def load_data(filename):
             Weekend = 1 if row[16] == "TRUE" else 0
             Revenue = 1 if row[17] == "TRUE" else 0
 
-            # Append values to evidence
-            evidence.append(
-                Administrative, Administrative_Duration, Informational, Informational_Duration,
-                ProductRelated, ProductRelated_Duration, BounceRates, ExitRates, PageValues,
-                SpecialDay, Month, OperatingSystems, Browser, Region, TrafficType, VisitorType, Weekend)
+            data.append({
+                "evidence": [Administrative, Administrative_Duration, Informational, 
+                             Informational_Duration, ProductRelated, ProductRelated_Duration,
+                             BounceRates, ExitRates, PageValues, SpecialDay, Month,
+                             OperatingSystems, Browser, Region, TrafficType, VisitorType, Weekend],
+                "labels": [Revenue]
+            })
             
-            # Append values to labels
-            labels.append(Revenue)
-            
-    return evidence, labels
+        # Append values to evidence
+        evidence = [row["evidence"] for row in data]
+
+        # Append values to labels
+        labels = [row["labels"] for row in data]
+
+    return (evidence, labels)
 
     raise NotImplementedError
 
@@ -156,4 +162,5 @@ def evaluate(labels, predictions):
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    load_data("shopping.csv")
