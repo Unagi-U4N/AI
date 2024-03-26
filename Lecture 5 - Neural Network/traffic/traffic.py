@@ -3,6 +3,8 @@ import numpy as np
 import os
 import sys
 import tensorflow as tf
+import keras
+from keras import layers
 
 from sklearn.model_selection import train_test_split
 
@@ -85,4 +87,36 @@ def get_model():
     """
 
     # Create a convolutional neural network
-    model = tf.keras.models.Sequenti
+    model = keras.Sequential(
+        [
+            # Convolutional layer. Learn 32 filters using a 3x3 kernel
+            layers.Conv2D(32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+
+            # Max-pooling layer, using 2x2 pool size
+            layers.MaxPooling2D(pool_size=(2, 2)),
+
+            # Flatten units
+            layers.Flatten(),
+
+            # Add a hidden layer with dropout
+            layers.Dense(128, activation="relu"),
+            layers.Dropout(0.5),
+
+            # Add an output layer with output units for all categories
+            layers.Dense(NUM_CATEGORIES, activation="softmax")
+        ]
+    )
+
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+        )
+    
+    return model
+
+    raise NotImplementedError
+
+
+if __name__ == "__main__":
+    main()
