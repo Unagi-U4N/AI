@@ -70,7 +70,7 @@ def load_data(data_dir):
         for file in os.listdir(path):
             img = cv2.imread(os.path.join(path, file))
             img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
-            img = np.ndarray.flatten(img)
+            # img = np.ndarray.flatten(img)
             images.append(img)
             labels.append(i)
 
@@ -89,8 +89,8 @@ def get_model():
     # Create a convolutional neural network
     model = keras.Sequential(
         [
-            # Convolutional layer. Learn 32 filters using a 3x3 kernel
-            layers.Conv2D(32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+            # Convolutional layer. Learn 64 filters using a 3x3 kernel
+            layers.Conv2D(64, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
 
             # Max-pooling layer, using 2x2 pool size
             layers.MaxPooling2D(pool_size=(2, 2)),
@@ -99,7 +99,11 @@ def get_model():
             layers.Flatten(),
 
             # Add a hidden layer with dropout
-            layers.Dense(128, activation="relu"),
+            layers.Dense(1024, activation="relu"),
+            layers.Dropout(0.5),
+
+            # Second hidden layer
+            layers.Dense(1024, activation="relu"),
             layers.Dropout(0.5),
 
             # Add an output layer with output units for all categories
